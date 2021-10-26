@@ -3,6 +3,7 @@ require "time"
 class Snowflake
     @time_bits : Int64
     @instance_bits : Int64
+    @instance_max : Int64
     @sequence_bits : Int64
     @sequence_max : Int64
     @newepoch : Int64
@@ -13,11 +14,12 @@ class Snowflake
     def initialize(@instance : Int64, ep : Int64)
         @time_bits = 41_i64
         @instance_bits = 10_i64
-        if @instance >= 2_i64**@instance_bits
+        @instance_max = 2_i64**@instance_bits
+        if @instance >= @instance_max 
             raise "Snowflake instance exceeds max value of #{2_i64 ** @instance_bits}"
         end
         @sequence_bits = 12_i64
-        @sequence_max  = 2_i64**@sequence_bits
+        @sequence_max  = (2_i64**@sequence_bits)-1
         @newepoch = ep
         @sequence = 0
     end
@@ -28,7 +30,7 @@ class Snowflake
 
     def next
         @sequence+=1
-        if @sequence >= @sequence_max
+        if @sequence > @sequence_max
         @sequence = 0
         sleep 0.001
         end
@@ -37,6 +39,18 @@ class Snowflake
 
     def generate (time : Time, sequence : (Int64|Int32))
         generate time.to_unix_ms, sequence
+    end
+
+    def snowflake_to_timestamp (snowflake : Int64)
+        return (snowflake >> (@instance_bits + @sequence_bits)) + @newepoch
+    end
+
+    def snowflake_to_instance (snowflake : Int64)
+        return (snowflake & (2_i64**(@sequence_bits+@instance_bits) - @sequence_max)) >> @sequence_bits
+    end
+
+    def snowflake_to_sequence (snowflake : Int)
+        return snowflake & @sequence_max 
     end
 
     def generate(time : Int64, sequence : (Int64|Int32))
