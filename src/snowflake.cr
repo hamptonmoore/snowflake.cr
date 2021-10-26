@@ -35,12 +35,16 @@ class Snowflake
         generate Time.utc.to_unix_ms, @sequence
     end
 
+    def generate (time : Time, sequence : (Int64|Int32))
+        generate time.to_unix_ms, sequence
+    end
+
     def generate(time : Int64, sequence : (Int64|Int32))
         timebits = time - @newepoch
         snowflake_id = 0_i64
         snowflake_id |= timebits << (@sequence_bits + @instance_bits)
         snowflake_id |= @instance << @sequence_bits
-        snowflake_id |= @sequence
+        snowflake_id |= sequence
         snowflake_id
     end
 
