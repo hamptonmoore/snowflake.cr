@@ -25,15 +25,19 @@ class Snowflake
     def initialize(@instance : Int64, ep : Time)
         initialize(@instance, ep.to_unix_ms)
     end
-    
+
     def next
-        snowflake_id = 0_i64
-        timebits = Time.utc.to_unix_ms - @newepoch
         @sequence+=1
         if @sequence >= @sequence_max
         @sequence = 0
         sleep 0.001
         end
+        generate Time.utc.to_unix_ms, @sequence
+    end
+
+    def generate(time : Int64, sequence : (Int64|Int32))
+        timebits = time - @newepoch
+        snowflake_id = 0_i64
         snowflake_id |= timebits << (@sequence_bits + @instance_bits)
         snowflake_id |= @instance << @sequence_bits
         snowflake_id |= @sequence
