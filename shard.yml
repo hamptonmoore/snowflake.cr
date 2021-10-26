@@ -1,0 +1,7 @@
+name: snowflake
+version: 0.1.0
+authors:
+  - name <me@hamptonmoore.com>
+description: |
+  Easily generate snowflake IDs
+license: MIT
