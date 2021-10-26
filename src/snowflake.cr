@@ -6,6 +6,10 @@ class Snowflake
     @sequence_bits : Int64
     @sequence_max : Int64
     @newepoch : Int64
+
+    getter sequence
+    setter sequence
+
     def initialize(@instance : Int64, ep : Int64)
         @time_bits = 41_i64
         @instance_bits = 10_i64
